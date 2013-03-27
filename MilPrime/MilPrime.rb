@@ -1,5 +1,3 @@
-#!/opt/local/bin/ruby1.9
-
 def fast_prime limit
   def is_prime? n
     return false if n == 1
@@ -28,4 +26,4 @@ def fast_prime limit
   return candidate
 end
 
-puts fast_prime 100000
+puts fast_prime 1_000_000

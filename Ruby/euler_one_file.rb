@@ -5,7 +5,6 @@
 ## Description : Project Euler Problems - In Ruby
 ##============================================================================
 
-$PATH = "/Users/ryan/Desktop/prog_stack/euler/"
 # # # # # # # # # # # 
 # Helper Functions
 # # # # # # # # # # # 

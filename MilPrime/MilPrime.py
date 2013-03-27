@@ -26,4 +26,4 @@ def fast_prime(limit):
             primes += 1
     return candidate
 
-print fast_prime(10)
+print fast_prime(1000000)
