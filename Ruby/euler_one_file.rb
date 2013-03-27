@@ -460,7 +460,6 @@ def eu12
     tnum += n
     if factors(tnum) > 500
       return tnum
-      false
     end
   end
 end

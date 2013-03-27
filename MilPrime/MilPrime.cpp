@@ -35,7 +35,7 @@ int primeAt(int limit) {
 
 
 int main() {
-	cout << primeAt(1000000) << endl;
+	cout << "Millionth Prime: " << primeAt(1000000) << endl;
 	cout << "\nDone" << endl;
 
 	return 0;

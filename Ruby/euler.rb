@@ -793,6 +793,8 @@ def eu36
 	total
 end
 
+
+
 # # # # # # # # # # # 
 # Execution Area
 # # # # # # # # # # # 
