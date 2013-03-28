@@ -793,7 +793,55 @@ def eu36
 	total
 end
 
+def eu37
+	# The number 3797 has an interesting property. Being prime itself, 
+	# it is possible to continuously remove digits from left to right, 
+	# and remain prime at each stage: 3797, 797, 97, and 7. Similarly 
+	# we can work from right to left: 3797, 379, 37, and 3.
+	# 
+	# Find the sum of the only eleven primes that are both truncatable 
+	# from left to right and right to left.
+	# Answer: 748,317
+  def truncatable n 
+    nstr = n.to_s
+    (0...nstr.length).each do |x|
+      return false if not nstr[0..x].to_i.prime?
+      return false if not nstr[x...nstr.length].to_i.prime?
+    end
+    return true 
+  end
+  n = 11
+  count, total = 0, 0
+  while (count < 11)
+    if truncatable n
+      count += 1
+      total += n
+    end
+    n += 2
+  end
+  return total
+end
 
+def eu38
+	# What is the largest 1 to 9 pandigital 9-digit number that can be formed as 
+  # the concatenated product of an integer with (1,2, ... , n) where n  1?
+  # Answer: 932,718,654
+  max = 0
+  (1..10_000).each do |x|
+    stringed = x.to_s
+    next if stringed[0] != '9'
+    n = 2
+    loop do
+      stringed << (x * n).to_s
+      n += 1 
+      break if stringed.length >= 9
+    end
+    if stringed.to_i.pandigital19?
+      max = stringed.to_i if stringed.to_i > max 
+    end
+  end
+  return max
+end
 
 # # # # # # # # # # # 
 # Execution Area
@@ -837,5 +885,7 @@ if __FILE__ == $0
   puts "Project Euler Problem 34:\t#{eu34.to_hr}"
   puts "Project Euler Problem 35:\t#{eu35.to_hr}"
   puts "Project Euler Problem 36:\t#{eu36.to_hr}"
+  puts "Project Euler Problem 37:\t#{eu37.to_hr}"
+  puts "Project Euler Problem 38:\t#{eu38.to_hr}"
 
 end

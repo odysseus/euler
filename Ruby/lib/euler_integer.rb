@@ -124,4 +124,10 @@ class Integer
 		end
 		return (str.join.reverse.to_i)
 	end
+	def pandigital19?
+		require 'set'
+		onenine = 123456789.to_a.to_set
+		nset = self.to_a.to_set
+		return (nset.length == 9 and self.length == 9 and nset == onenine)
+	end
 end

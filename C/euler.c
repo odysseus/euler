@@ -195,6 +195,7 @@ void strrev(char *p)
 
 bool isPrime(long n) {
   if (n == 1) return false;
+  if (n == 2) return true;
   if (n < 4) return true;
   if (n % 2 == 0) return false;
   if (n < 9) return true;
