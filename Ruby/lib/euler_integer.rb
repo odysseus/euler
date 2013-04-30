@@ -130,4 +130,11 @@ class Integer
 		nset = self.to_a.to_set
 		return (nset.length == 9 and self.length == 9 and nset == onenine)
 	end
+	def coprime? n 
+    min = (self > n) ? n : self
+    (2..min).each do |x|
+      return false if (self % x == 0 and n % x == 0)
+    end
+    return true
+  end
 end

@@ -1,48 +1,4 @@
-class String
-  def to_hr; self; end
-end
-
-class Array
-  def vcount
-    count = {}
-    self.each do |item| 
-      if !count.has_key?(item)
-        count[item] = 1
-      else
-        count[item] += 1
-      end
-    end
-    return count
-  end
-  def sum; self.reduce(:+); end
-  def mean; sum / size; end
-  def f_mean; sum.to_f / size; end
-  def mode
-    self.vcount.each.collect { 
-      |k, v| k if v == self.vcount.each_value.to_a.max }.compact[0]
-  end
-  def has?(item); !!self.index(item); end
-  def uniq?; length == uniq.length; end
-  def permutations
-    return [self] if size < 2
-    perm = []
-    each { |e| (self - [e]).permutations.each { |p| perm << ([e] + p) } }
-    perm
-  end
-  def permute(prefixed=[])
-    if (length < 2)
-      # there are no elements left to permute
-      yield(prefixed + self)
-    else
-      # recursively permute the remaining elements
-      each_with_index do |e, i|
-        (self[0,i]+self[(i+1)..-1]).permute(prefixed+[e]) { 
-          |a| yield a }
-      end
-    end
-  end
-end
-
+# Numbers
 class Integer
   def prime?
     # Adding a prime checking method directly to Fixnum
@@ -77,10 +33,22 @@ class Integer
   def abundant?; self.sumdiv > self; end
   def deficient?; self.sumdiv < self; end
   def perfect?; self.sumdiv == self; end
-  def _!; (1..self).reduce(:*); end
   def length; to_s.length; end
   def to_a; to_s.split(//).map {|i| i.to_i }; end
   def to_strarr; to_s.split(//); end
+  def _!
+    return 1 if self == 0
+    x, t = self, 1
+    while (x >= 1)
+      t *= x
+      x -= 1
+    end
+    t
+  end
+  def sum_of_digit_factorials
+    facts = [1, 1, 2, 6, 24, 120, 720, 5040, 40320, 362880]
+    to_a.inject(0) { |x, y| x += facts[y] }
+  end
   def primefacts
     # Empty while loop is more efficient, allowing n to reset
     # each time a new factor is found
@@ -131,8 +99,129 @@ class Integer
     end
     return r
   end
+  def circulate_each
+    s = self
+    length.times do
+      yield s
+      s = s.to_s.split(//)
+      *h, t = s
+      s = h.unshift(t).join('').to_i
+    end
+  end
+  def circular_prime?
+    return false unless prime?
+    circulate_each { |x| return false unless x.prime? }
+    true
+  end
+  def palindrome?
+    to_s.palindrome?
+  end
+  def to_bin
+    str = []
+    n = self
+    while n > 0
+      str.push((n%2).to_s)
+      n /= 2
+    end
+    return (str.join.reverse.to_i)
+  end
+  def pandigital19?
+    require 'set'
+    onenine = 123456789.to_a.to_set
+    nset = self.to_a.to_set
+    return (nset.length == 9 and self.length == 9 and nset == onenine)
+  end
+  def coprime? n 
+    min = (self > n) ? n : self
+    (2..min).each do |x|
+      return false if (self % x == 0 and n % x == 0)
+    end
+    return true
+  end
 end
-
+# Array
+class Array
+  def vcount
+    count = {}
+    self.each do |item| 
+      if !count.has_key?(item)
+        count[item] = 1
+      else
+        count[item] += 1
+      end
+    end
+    return count
+  end
+  def sum; self.reduce(:+); end
+  def mean; sum / size; end
+  def f_mean; sum.to_f / size; end
+  def mode
+    self.vcount.each.collect { 
+      |k, v| k if v == self.vcount.each_value.to_a.max }.compact[0]
+  end
+  def has?(item); !!self.index(item); end
+  def uniq?; length == uniq.length; end
+  def permutations
+    return [self] if size < 2
+    perm = []
+    each { |e| (self - [e]).permutations.each { |p| perm << ([e] + p) } }
+    perm
+  end
+  def permute(prefixed=[])
+    if (length < 2)
+      # there are no elements left to permute
+      yield(prefixed + self)
+    else
+      # recursively permute the remaining elements
+      each_with_index do |e, i|
+        (self[0,i]+self[(i+1)..-1]).permute(prefixed+[e]) { 
+          |a| yield a }
+      end
+    end
+  end
+end
+# String
+class String
+  def to_hr; self; end
+  def palindrome?
+    return false if self[0] == "0"
+    self == self.reverse
+  end
+end
+def exec n
+  svdir = Dir::pwd
+  cd "#{`echo $HOME`.strip}/Desktop"
+  f = open("rbeuler_exec.txt", "w")
+  (1..n).each do |i|
+    f.write("puts \"Project Euler Problem #{i}:      \#{eu#{i}.to_hr}\"\n")
+  end
+  f.close
+  cd svdir
+end
+def ln; puts ""; end
+def cd path
+  Dir.chdir(path)
+end
+# Helpers
+def pytrips m, n, k
+  def findtrips m, n, k
+    if ((m-n).odd? and m.coprime?(n))
+      a = k * (m**2 - n**2)
+      b = k * (2*m*n)
+      c = k * (m**2 + n**2)
+    else
+      a, b, c = 0, 0, 0
+    end
+    return [a, b, c]
+  end
+  if m == n
+    return [0, 0, 0]
+  elsif m > n
+    return findtrips(m, n, k)
+  else
+    return findtrips(n, m, k)
+  end
+end
 def fast_prime limit
   return 2 if limit == 1
   def is_prime? n
@@ -158,17 +247,3 @@ def fast_prime limit
   end
   return candidate
 end
-def cd path
-  Dir.chdir(path)
-end
-def exec n
-  svdir = Dir::pwd
-  cd "#{`echo $HOME`.strip}/Desktop"
-  f = open("rbeuler_exec.txt", "w")
-  (1..n).each do |i|
-    f.write("puts \"Project Euler Problem #{i}:      \#{eu#{i}.to_hr}\"\n")
-  end
-  f.close
-  cd svdir
-end
-def ln; puts ""; end

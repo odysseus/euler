@@ -5,38 +5,19 @@
 ## Description : Project Euler Problems - In Ruby
 ##============================================================================
 
-# # # # # # # # # # # 
-# Helper Functions
-# # # # # # # # # # # 
-
-class String# {{{
-  def to_hr; self; end
-	def palindrome?
-		return false if self[0] == "0"
-		self == self.reverse
-	end
-end# }}}
-class Array# {{{# {{{
-  def vcount
-    count = {}
-    self.each do |item| 
-      if !count.has_key?(item)
-        count[item] = 1
-      else
-        count[item] += 1
-      end
-    end
-    return count
+class Array
+  def sum
+    self.reduce(0, :+)
   end
-  def sum; self.reduce(:+); end
-  def mean; sum / size; end
-  def f_mean; sum.to_f / size; end
-  def mode
-    self.vcount.each.collect { 
-      |k, v| k if v == self.vcount.each_value.to_a.max }.compact[0]
+  def mean
+    sum / size
   end
-  def has?(item); !!self.index(item); end
-  def uniq?; length == uniq.length; end
+  def f_mean
+    sum.to_f / size
+  end
+  def uniq?
+    length == uniq.length
+  end
   def permutations
     return [self] if size < 2
     perm = []
@@ -55,10 +36,19 @@ class Array# {{{# {{{
       end
     end
   end
-end# }}}# }}}
-class Integer# {{{
+end
+class String
+  def to_hr 
+    self
+  end
+  def palindrome?
+    return false if self[0] == "0"
+    self == self.reverse
+  end
+end
+class Integer
   def prime?
-    # Adding a prime checking method directly to Fixnum
+    # Adding a prime checking method directly to Integer
     # Much, much faster than the 'mathn' library generator
     n = self
     return false if n < 0
@@ -77,6 +67,7 @@ class Integer# {{{
     return true
   end
   def sumdiv
+    # Finds the sum of all divisors
     total = 0
     (1..((self**0.5).to_i)).each do |i|
       if self % i == 0
@@ -87,26 +78,43 @@ class Integer# {{{
     total -= (self**0.5).to_i if (self**0.5).to_i**2 == self
     return (total-self)
   end
-  def abundant?; self.sumdiv > self; end
-  def deficient?; self.sumdiv < self; end
-  def perfect?; self.sumdiv == self; end
-  def length; to_s.length; end
-  def to_a; to_s.split(//).map {|i| i.to_i }; end
-  def to_strarr; to_s.split(//); end
-	def _!
-		return 1 if self == 0
-		x, t = self, 1
-		while (x >= 1)
-			t *= x
-			x -= 1
-		end
-		t
-	end
-	def sum_of_digit_factorials
-		facts = [1, 1, 2, 6, 24, 120, 720, 5040, 40320, 362880]
-		to_a.inject(0) { |x, y| x += facts[y] }
-	end
+  def abundant?
+    # Sum of divisors is greater than the number
+    self.sumdiv > self
+  end
+  def deficient?
+    # Sum of divisors is less than the number
+    self.sumdiv < self
+  end
+  def perfect?
+    # Sum of divisors is equal to the number
+    self.sumdiv == self
+  end
+  def length
+    to_s.length
+  end
+  def to_a
+    to_s.split(//).map {|i| i.to_i }
+  end
+  def to_strarr
+    to_s.split(//)
+  end
+  def _!
+    # Finds the factorial of a number
+    return 1 if self == 0
+    x, t = self, 1
+    while (x >= 1)
+      t *= x
+      x -= 1
+    end
+    return t
+  end
+  def sum_of_digit_factorials
+    facts = [1, 1, 2, 6, 24, 120, 720, 5040, 40320, 362880]
+    to_a.inject(0) { |x, y| x += facts[y] }
+  end
   def primefacts
+    # Finds all prime factors of a number
     # Empty while loop is more efficient, allowing n to reset
     # each time a new factor is found
     n = self
@@ -116,7 +124,7 @@ class Integer# {{{
     while n.even?
       n /= 2
     end
-    while true && n > 1
+    while true and n > 1
       t = false
       (x..n).step(2) do |i|
         if n == i
@@ -156,34 +164,69 @@ class Integer# {{{
     end
     return r
   end
-	def circulate_each
-		s = self
-		length.times do
-			yield s
-			s = s.to_s.split(//)
-			*h, t = s
-			s = h.unshift(t).join('').to_i
-		end
-	end
-	def circular_prime?
-		return false unless prime?
-		circulate_each { |x| return false unless x.prime? }
-		true
-	end
-	def palindrome?
-		to_s.palindrome?
-	end
-	def to_bin
-		str = []
-		n = self
-		while n > 0
-			str.push((n%2).to_s)
-			n /= 2
-		end
-		return (str.join.reverse.to_i)
-	end
-end# }}}
-# Non Open-Class Helper Methods# {{{
+  def circulate_each
+    s = self
+    length.times do
+      yield s
+      s = s.to_s.split(//)
+      *h, t = s
+      s = h.unshift(t).join('').to_i
+    end
+  end
+  def circular_prime?
+    # Does the number remain prime as the digits are cycled from front to back
+    return false unless prime?
+    circulate_each { |x| return false unless x.prime? }
+    true
+  end
+  def palindrome?
+    to_s.palindrome?
+  end
+  def to_bin
+    # Converts a number to binary
+    str = []
+    n = self
+    while n > 0
+      str.push((n%2).to_s)
+      n /= 2
+    end
+    return (str.join.reverse.to_i)
+  end
+  def pandigital19?
+    # Does the number contain all the digits from 1 to 9
+    require 'set'
+    onenine = 123456789.to_a.to_set
+    nset = self.to_a.to_set
+    return (nset.length == 9 and self.length == 9 and nset == onenine)
+  end
+  def coprime? n
+    # Is the number coprime to n
+    min = (self > n) ? n : self
+    (2..min).each do |x|
+      return false if (self % x == 0 and n % x == 0)
+    end
+    return true
+  end
+end
+def pytrips m, n, k
+  def findtrips m, n, k
+    if ((m-n).odd? and m.coprime?(n))
+      a = k * (m**2 - n**2)
+      b = k * (2*m*n)
+      c = k * (m**2 + n**2)
+    else
+      a, b, c = 0, 0, 0
+    end
+    return [a, b, c]
+  end
+  if m == n
+    return [0, 0, 0]
+  elsif m > n
+    return findtrips(m, n, k)
+  else
+    return findtrips(n, m, k)
+  end
+end
 def fast_prime limit
   return 2 if limit == 1
   def is_prime? n
@@ -208,16 +251,9 @@ def fast_prime limit
     end
   end
   return candidate
-end# }}}
-# Misc Methods# {{{
-def cd path
-  Dir.chdir(path)
 end
-def ln; puts ""; end# }}}
 
-# # # # # # # # # # # 
-# Euler Problems
-# # # # # # # # # # # 
+# Problems
 
 def eu1
   # Problem 1: 
@@ -346,28 +382,13 @@ def eu9
   # There exists exactly one Pythagorean triplet where
   # a+b+c = 1000, find the product a * b * c
   # Answer: 31,875,000
-  def pytrips m, n
-    def findtrips m, n
-      a = m**2 - n**2
-      b = 2*m*n
-      c = m**2 + n**2
-      return [(a + b + c), a, b, c]
-    end
-    if m == n
-      return -1
-    elsif m > n
-      return findtrips(m, n)
-    else
-      return findtrips(n, m)
-    end
-  end
-  for x in 1..101
-    (1..101).each do |y|
-      if pytrips(x, y) == -1
-        next
-      else
-        t = pytrips(x, y)
-        return (t[1] * t[2] * t[3]) if t[0] == 1000
+  (1..25).each do |x|
+    (1..25).each do |y|
+      (1..25).each do |k|
+        trips = pytrips(x, y, k)
+        if trips.inject(:+) == 1000
+          return trips[0] * trips[1] * trips[2]
+        end
       end
     end
   end
@@ -439,9 +460,9 @@ end
 
 def eu12
   # Problem 12:
-	# In the set of all triangle numbers, find the first
-	# with more than 500 factors
-	# Answer: 76,576,500
+  # In the set of all triangle numbers, find the first
+  # with more than 500 factors
+  # Answer: 76,576,500
   def factors n
     count = 2
     root = n**0.5
@@ -460,6 +481,7 @@ def eu12
     tnum += n
     if factors(tnum) > 500
       return tnum
+      false
     end
   end
 end
@@ -628,26 +650,29 @@ end
 def eu20
   # Problem 20:
   # Find the sum of the digits in the number 100!
+  # Answer: 648
   (2..100).reduce(:*).to_s.split(//).reduce(0){|x,y| x+y.to_i}
 end
 
 def eu21
   # Problem 21:
   # Find the sum of all amicable numbers under 10,000
+  # Anser: 31,626
   amic = []
   (1..10_000).each do |i|
     if i == i.sumdiv.sumdiv and i != i.sumdiv
-      amic.push(i) if !(amic.has?(i))
-      amic.push(i.sumdiv) if !(amic.has?(i))
+      amic.push(i) if !(amic.include?(i))
+      amic.push(i.sumdiv) if !(amic.include?(i))
     end
   end
   return amic.reduce(:+)
 end
 
 def eu22
-	# Problem 22:
-	# Using the names.txt file, find the sum of the name scores
-	# for every first name
+  # Problem 22:
+  # Using the names.txt file, find the sum of the name scores
+  # for every first name
+  # Answer: 871,198,282
   farr = []
   open("files/eu22.txt", "r") do |file|
     file.each {|line| farr.push(line.split(","))}
@@ -669,9 +694,10 @@ def eu22
 end
 
 def eu23
-	# Problem 23:
-	# Find the sum of all positive integers which cannot be written
-	# as the sum of two abundant numbers
+  # Problem 23:
+  # Find the sum of all positive integers which cannot be written
+  # as the sum of two abundant numbers
+  # Answer: 4,179,871
   abun = []
   (1..28123).each {|i| abun.push(i) if i.abundant?}
   abunodd = abun.map{ |x| x if x%2 != 0 }.compact
@@ -686,8 +712,9 @@ def eu23
 end
 
 def eu24
-	# Problem 24:
-	# Find the one millionth lexicographic permutation of the digits (0..9)
+  # Problem 24:
+  # Find the one millionth lexicographic permutation of the digits (0..9)
+  # Answer: 2,783,915,460
   def findpermno(series, permno)
     # Takes an ordered series as the first argument
     # and a permutation number as the second argument
@@ -737,11 +764,12 @@ def eu24
 end
 
 def eu25
-	# Problem 25:
-	# What is the first term in the Fibonacci sequence to contain 1000 digits
+  # Problem 25:
+  # What is the first term in the Fibonacci sequence to contain 1000 digits
+  # Answer: 4,782
   def fiboy(test_term=true, return_termno=false)
-		# Severely over-engineered method for the purposes of the problem, but a 
-		# robust Fibonacci tester will probably come in handy
+    # Severely over-engineered method for the purposes of the problem, but a 
+    # robust Fibonacci tester will probably come in handy
     a, b, f = 0, 1, 1
     loop do
       a, b = b, a+b
@@ -763,9 +791,10 @@ def eu25
 end
 
 def eu26
-	# Problem 26:
-	# For all the numbers 1...1000 find the number for which 1/n has the
-	# longest recurring decimal sequence
+  # Problem 26:
+  # For all the numbers 1...1000 find the number for which 1/n has the
+  # longest recurring decimal sequence
+  # Answer: 983
   def cycle(n)
     maxlen = 0
     rest = 1
@@ -794,10 +823,11 @@ def eu26
 end
 
 def eu27
-	# Problem 27:
-	# Find the products of the coefficients a and b for the quadratic equation
-	# that produces the maximum number of primes for consecutive values of n
-	# starting with n = 0
+  # Problem 27:
+  # Find the products of the coefficients a and b for the quadratic equation
+  # that produces the maximum number of primes for consecutive values of n
+  # starting with n = 0
+  # Answer: -59,231
   def euquad(a, b, n)
     (n**2) + (a*n) + b
   end
@@ -832,10 +862,11 @@ def eu27
 end
 
 def eu28
-	# Problem 28:
-	# Find the sum of the numbers on the diagonals in a 1001 by 1001
-	# spiral, formed by incrementing in a clockwise direction with 1
-	# at the center
+  # Problem 28:
+  # Find the sum of the numbers on the diagonals in a 1001 by 1001
+  # spiral, formed by incrementing in a clockwise direction with 1
+  # at the center
+  # Answer: 669,171,001
   n = 1
   inc = 2
   d1 = 0
@@ -853,9 +884,10 @@ def eu28
 end
 
 def eu29
-	# Problem 29:
-	# For the equation a^b where a=(1..100) and b=(1..100):
-	# How many distinct terms are created out of these 1,000 iterations 
+  # Problem 29:
+  # For the equation a^b where a=(1..100) and b=(1..100):
+  # How many distinct terms are created out of these 1,000 iterations 
+  # Answer: 9,183
   ans = []
   (2..100).each do |a|
     (2..100).each do |b|
@@ -866,18 +898,20 @@ def eu29
 end
 
 def eu30
-	# Problem 30:
-	# Find the sum of all numbers that can be written as the sum of the
-	# fifth powers of their digits
+  # Problem 30:
+  # Find the sum of all numbers that can be written as the sum of the
+  # fifth powers of their digits
+  # Answer: 443,839
   y = lambda { |n| n == n.to_a.map {|i| i**5}.reduce(:+) }
   (2..354294).collect{ |n| n if y.call(n) }.compact.reduce(:+)
 end
 
 def eu31
-	# Problem 31:
-	# Using the eight British coins in general circulation: how many ways 
-	# can 2GBP be made using any number of coins?
-	# AKA: An Ode to Lisp
+  # Problem 31:
+  # Using the eight British coins in general circulation: how many ways 
+  # can 2GBP be made using any number of coins?
+  # AKA: An Ode to Lisp
+  # Answer: 73,682
   count = 0
   200.step(0, -200) {|a|
       a.step(0, -100) {|b|
@@ -891,50 +925,52 @@ def eu31
 end
 
 def eu32
-	# Problem 32:
-	# Find the sum of all products, whose multiplicand * multiplier = product
-	# identity can be written as a 1..9 pandigital
+  # Problem 32:
+  # Find the sum of all products, whose multiplicand * multiplier = product
+  # identity can be written as a 1..9 pandigital
+  # Answer: 45,228
   found = Array.new
   1.upto(9) do |a|
-  	sa = a.to_s
-  	1234.upto(9876) do |b|
-  		s = sa + b.to_s
-  		next if s.delete('0').split(//).uniq.length < s.length
-  		s = s + (a*b).to_s
-  		break if s.length > 9
-  		found << (a*b) if s.delete('0').split(//).uniq.length == 9
-  	end
+    sa = a.to_s
+    1234.upto(9876) do |b|
+      s = sa + b.to_s
+      next if s.delete('0').split(//).uniq.length < s.length
+      s = s + (a*b).to_s
+      break if s.length > 9
+      found << (a*b) if s.delete('0').split(//).uniq.length == 9
+    end
   end
   10.upto(98) do |a|
-  	sa = a.to_s
-  	123.upto(987) do |b|
-  		s = sa + b.to_s
-  		next if s.delete('0').split(//).uniq.length < s.length
-  		s = s + (a*b).to_s
-  		break if s.length > 9
-  		found << (a*b) if s.delete('0').split(//).uniq.length == 9
-  	end
+    sa = a.to_s
+    123.upto(987) do |b|
+      s = sa + b.to_s
+      next if s.delete('0').split(//).uniq.length < s.length
+      s = s + (a*b).to_s
+      break if s.length > 9
+      found << (a*b) if s.delete('0').split(//).uniq.length == 9
+    end
   end
   sum = 0
   found.uniq.each do |i|
-  	sum = sum + i
+    sum = sum + i
   end
   return sum
 end
 
 def eu33
-	# Problem 33:
-	# 49/98 = 4/8, a correct answer that can be obtained by incorrectly 
-	# cancelling the 9's. Excluding cases like 30/50 there are exactly
-	# four examples of this type of fraction, < 1 in value. If the product
-	# of these four is given in its lowest terms, find the value of its
-	# denominator
+  # Problem 33:
+  # 49/98 = 4/8, a correct answer that can be obtained by incorrectly 
+  # cancelling the 9's. Excluding cases like 30/50 there are exactly
+  # four examples of this type of fraction, < 1 in value. If the product
+  # of these four is given in its lowest terms, find the value of its
+  # denominator
+  # Answer: 100
   results = []
   (10..99).each do |num|
     (10..99).each do |denom|
       numa, denoma = num.to_a, denom.to_a
       numa.each do |numchar|
-        if denoma.has?(numchar) and numchar != 0
+        if denoma.include?(numchar) and numchar != 0
           numa.delete_at(numa.index(numchar))
           denoma.delete_at(denoma.index(numchar))
           numa, denoma = numa.join.to_f, denoma.join.to_f
@@ -949,31 +985,130 @@ def eu33
   results.each { |item| fnum, fden = fnum * item[0], fden * item[1] }
   return (1.0 /  (fnum.to_f / fden.to_f)).to_i
 end
+
 def eu34
-	total = 0
-	(3..100_000).each do |x|
-		total += x if x == x.sum_of_digit_factorials 
-	end
-	total
+  # Find the sum of all numbers which are equal to the sum of 
+  # the factorial of their digits.
+  # Answer: 40,730
+  total = 0
+  (3..100_000).each do |x|
+    total += x if x == x.sum_of_digit_factorials 
+  end
+  total
 end
+
 def eu35
-	# Problem 35:
-	# 197 is a circular prime, because all rotations of the digits are also prime:
-	# 197, 971, 719. How many of these numbers exist below 1,000,000.
-	circulars = [2]
-	(3...1_000_000).step(2).each do |x|
-		circulars.push(x) if x.circular_prime?
-	end
-	circulars.length
+  # Problem 35:
+  # 197 is a circular prime, because all rotations of the digits are also prime:
+  # 197, 971, 719. How many of these numbers exist below 1,000,000.
+  # Answer: 55
+  circulars = [2]
+  (3...1_000_000).step(2).each do |x|
+    circulars.push(x) if x.circular_prime?
+  end
+  circulars.length
 end
+
 def eu36
-	total = 0
-	(1...1_000_000).each do |n|
-		if n.palindrome? && n.to_bin.palindrome?
-			total += n
-		end
-	end
-	total
+  # Find the sum of all numbers, less than one million,
+  # which are palindromic in base 10 and base 2
+  # Answer: 872,187
+  total = 0
+  (1...1_000_000).each do |n|
+    if n.palindrome? && n.to_bin.palindrome?
+      total += n
+    end
+  end
+  total
+end
+
+def eu37
+  # The number 3797 has an interesting property. Being prime itself, 
+  # it is possible to continuously remove digits from left to right, 
+  # and remain prime at each stage: 3797, 797, 97, and 7. Similarly 
+  # we can work from right to left: 3797, 379, 37, and 3.
+  # 
+  # Find the sum of the only eleven primes that are truncatable 
+  # from both left to right and right to left.
+  # Answer: 748,317
+  def truncatable n 
+    nstr = n.to_s
+    (0...nstr.length).each do |x|
+      # Truncating left to right
+      return false if not nstr[0..x].to_i.prime?
+      # Truncating right to left
+      return false if not nstr[x...nstr.length].to_i.prime?
+    end
+    return true 
+  end
+  n = 11
+  count, total = 0, 0
+  while (count < 11)
+    if truncatable n
+      count += 1
+      total += n
+    end
+    n += 2
+  end
+  return total
+end
+
+def eu38
+  # What is the largest 1 to 9 pandigital 9-digit number that can be formed as 
+  # the concatenated product of an integer with (1,2, ... , n) where n  1?
+  # Answer: 932,718,654
+  max = 0
+  (1..10_000).each do |x|
+    stringed = x.to_s
+    next if stringed[0] != '9'
+    n = 2
+    loop do
+      stringed << (x * n).to_s
+      n += 1 
+      break if stringed.length >= 9
+    end
+    if stringed.to_i.pandigital19?
+      max = stringed.to_i if stringed.to_i > max 
+    end
+  end
+  return max
+end
+
+def eu39
+  # p is the combined length of all three sides of a right triangle. Values of p
+  # can have multiple solutions with the same overall length. Find the value for
+  # p, less than 1,000, that has the largest number of possible solutions
+  # Answer: 840
+  count = []
+  (0..1000).each do |i|
+    count[i] = 0
+  end
+  (1..25).each do |x|
+    (1..25).each do |y|
+      (1..25).each do |k|
+        n = pytrips(x,y,k).inject(:+)
+        if (n < 1000) and n > 0
+          count[n] += 1
+        end
+      end
+    end
+  end
+  return count.each_with_index.max[1]
+end
+
+def eu40
+  # In a million digit number, where Dn represents the nth number in the 
+  # sequence find the value of the following expresson
+  # D1 * D10 * D100 * D1000 * D10000 * D100000 * D1000000
+  # Answer: 210
+  n = 1
+  champ = "0"
+  while (champ.length < 1_000_001)
+    champ << n.to_s
+    n += 1
+  end
+  return champ[1].to_i * champ[10].to_i * champ[100].to_i * champ[1_000].to_i \
+  * champ[10_000].to_i * champ[100_000].to_i * champ[1_000_000].to_i
 end
 
 # # # # # # # # # # # 
@@ -981,7 +1116,7 @@ end
 # # # # # # # # # # # 
 
 if __FILE__ == $0
-  
+
   puts "Project Euler Problem 1:\t#{eu1.to_hr}"
   puts "Project Euler Problem 2:\t#{eu2.to_hr}"
   puts "Project Euler Problem 3:\t#{eu3.to_hr}"
@@ -1018,5 +1153,9 @@ if __FILE__ == $0
   puts "Project Euler Problem 34:\t#{eu34.to_hr}"
   puts "Project Euler Problem 35:\t#{eu35.to_hr}"
   puts "Project Euler Problem 36:\t#{eu36.to_hr}"
-  
+  puts "Project Euler Problem 37:\t#{eu37.to_hr}"
+  puts "Project Euler Problem 38:\t#{eu38.to_hr}"
+  puts "Project Euler Problem 39:\t#{eu39.to_hr}"
+  puts "Project Euler Problem 40:\t#{eu40.to_hr}"
+
 end

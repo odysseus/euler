@@ -15,7 +15,7 @@ Either way both solutions are much faster than my original one
 def eu1
   # .00028s | 1000 silent iterations
   total = 0
-  (1..1000).each {|i| total += i if i % 3 == 0 or i % 5 == 0}
+  (1..1000).each { |i| total += i if i % 3 == 0 or i % 5 == 0 }
   return total
 end
 

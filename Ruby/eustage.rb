@@ -1,49 +1,35 @@
-require '~/bin/extlib.rb'
+require './lib/euler_string'
+require './lib/euler_array'
+require './lib/euler_integer'
+require './lib/euler_helper'
+require './lib/fast_prime'
+require './lib/helpers'
 require 'set'
 
-# If p is the perimeter of a right angle triangle with integral length sides, 
-# {a,b,c}, there are exactly three solutions for p = 120.
+# An irrational decimal fraction is created by concatenating the positive integers:
 
-# {20,48,52}, {24,45,51}, {30,40,50}
+# 0.123456789101112131415161718192021...
 
-# For which value of p  1000, is the number of solutions maximised?
+# It can be seen that the 12th digit of the fractional part is 1.
 
-def pytrips m, n, k
-  def findtrips m, n, k
-    a = k * (m**2 - n**2)
-    b = k * (2*m*n)
-    c = k * (m**2 + n**2)
-    return [a, b, c].inject(:+)
+# If dn represents the nth digit of the fractional part, find the value of the 
+# following expression.
+
+# d1  d10  d100  d1000  d10000  d100000  d1000000
+
+def eu40
+  n = 1
+  champ = "0"
+  while (champ.length < 1_000_001)
+    champ << n.to_s
+    n += 1
   end
-  if m == n
-    return -1
-  elsif m > n
-    return findtrips(m, n, k)
-  else
-    return findtrips(n, m, k)
-  end
+  return champ[1].to_i * champ[10].to_i * champ[100].to_i * champ[1_000].to_i \
+  * champ[10_000].to_i * champ[100_000].to_i * champ[1_000_000].to_i
 end
 
-def eu39
-  count = []
-  (0..1000).each do |i|
-    count[i] = 0
-  end
-  (1..25).each do |x|
-    (1..25).each do |y|
-      (1..25).each do |k|
-        n = pytrips(x,y,k)
-        if (n < 1000) and n != -1
-          count[n] += 1
-        end
-      end
-    end
-  end
-  return count.each_with_index.max[1]
-end
+puts eu40
 
-
-puts eu39
 
 
 
